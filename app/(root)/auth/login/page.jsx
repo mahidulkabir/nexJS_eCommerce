@@ -1,6 +1,6 @@
 "use client";
 import { Card, CardContent } from "@/components/ui/card";
-import React from "react";
+import React, { useState } from "react";
 import Logo from "@/public/assets/images/logo-black.png";
 import Image from "next/image";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -14,11 +14,19 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { FaRegEyeSlash } from "react-icons/fa";
+import { FaRegEye } from "react-icons/fa6";
+import { z } from "zod";
 import { Input } from "@/components/ui/input";
+import ButtonLoading from "@/components/Application/ButtonLoading";
+
 const LoginPage = () => {
+  const [loading, setLoading] = useState(false);
+  const [isTypePassword, setIsTypePassword] = useState(true);
   const formSchema = StrongAuthSchema.pick({
     email: true,
-    password: true,
+  }).extend({
+    password: z.string().min("3", "Password field can not be empty"),
   });
 
   const form = useForm({
@@ -29,9 +37,12 @@ const LoginPage = () => {
     },
   });
 
-  const handleLoginSubmit = async (value) => {};
+  const handleLoginSubmit = async (value) => {
+    console.log(value);
+  };
+
   return (
-    <Card className="w-[450px]">
+    <Card className="w-[400px]">
       <CardContent>
         <div className="flex justify-center">
           <Image
@@ -46,7 +57,7 @@ const LoginPage = () => {
           <h1 className="text-3xl font-bold">Login Into Account</h1>
           <p>Login into your account by filling out the form below</p>
         </div>
-        <div>
+        <div className="mt-3">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(handleLoginSubmit)}>
               <div className="my-3">
@@ -73,18 +84,33 @@ const LoginPage = () => {
                   control={form.control}
                   name="password"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="relative">
                       <FormLabel>Password</FormLabel>
                       <FormControl>
                         <Input
-                          type="password"
+                          type={isTypePassword ? "password" : "text"}
                           placeholder="******"
                           {...field}
                         />
                       </FormControl>
+                      <button
+                        className="absolute top-1/2 right-2 cursor-pointer"
+                        type="button"
+                        onClick={() => setIsTypePassword(!isTypePassword)}
+                      >
+                        {isTypePassword ? <FaRegEyeSlash /> : <FaRegEye />}
+                      </button>
                       <FormMessage />
                     </FormItem>
                   )}
+                />
+              </div>
+              <div>
+                <ButtonLoading
+                  loading={loading}
+                  type="submit"
+                  text="Login"
+                  className="w-full cursor-pointer"
                 />
               </div>
             </form>

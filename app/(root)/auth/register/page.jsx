@@ -20,26 +20,35 @@ import { z } from "zod";
 import { Input } from "@/components/ui/input";
 import ButtonLoading from "@/components/Application/ButtonLoading";
 import Link from "next/link";
-import { WEBSITE_REGISTER } from "@/routes/WebsiteRoute";
+import { WEBSITE_LOGIN } from "@/routes/WebsiteRoute";
 
-const LoginPage = () => {
+const RegisterPage = () => {
   const [loading, setLoading] = useState(false);
   const [isTypePassword, setIsTypePassword] = useState(true);
   const formSchema = StrongAuthSchema.pick({
+    name: true,
     email: true,
-  }).extend({
-    password: z.string().min("3", "Password field can not be empty"),
-  });
+    password: true,
+  })
+    .extend({
+      confirmPassword: z.string(),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+      message: "Password and confirm password must be same.",
+      path: ["confirmPassword"],
+    });
 
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      name: "",
       email: "",
       password: "",
+      confirmPassword: "",
     },
   });
 
-  const handleLoginSubmit = async (value) => {
+  const handleRegisterSubmit = async (value) => {
     console.log(value);
   };
 
@@ -56,12 +65,33 @@ const LoginPage = () => {
           />
         </div>
         <div className="text-center">
-          <h1 className="text-3xl font-bold">Login Into Account</h1>
-          <p>Login into your account by filling out the form below</p>
+          <h1 className="text-3xl font-bold">Create Account</h1>
+          <p>Create a new account by filling out the form below</p>
         </div>
         <div className="mt-3">
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleLoginSubmit)}>
+            <form onSubmit={form.handleSubmit(handleRegisterSubmit)}>
+              <div className="my-3">
+                {/* name part */}
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Full Name</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="text"
+                          placeholder="Mahidul Kabir"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              {/* email part  */}
               <div className="my-3">
                 <FormField
                   control={form.control}
@@ -81,6 +111,7 @@ const LoginPage = () => {
                   )}
                 />
               </div>
+              {/* password part  */}
               <div className="mb-3">
                 <FormField
                   control={form.control}
@@ -88,6 +119,26 @@ const LoginPage = () => {
                   render={({ field }) => (
                     <FormItem className="relative">
                       <FormLabel>Password</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="password"
+                          placeholder="******"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              {/* confirm password  */}
+              <div className="mb-3">
+                <FormField
+                  control={form.control}
+                  name="confirmPassword"
+                  render={({ field }) => (
+                    <FormItem className="relative">
+                      <FormLabel>Confirm Password</FormLabel>
                       <FormControl>
                         <Input
                           type={isTypePassword ? "password" : "text"}
@@ -111,19 +162,21 @@ const LoginPage = () => {
                 <ButtonLoading
                   loading={loading}
                   type="submit"
-                  text="Login"
+                  text="Create Account"
                   className="w-full cursor-pointer"
                 />
               </div>
               <div className="text-center my-2">
-                  <div className="flex justify-center items-center gap-2">
-                    <p>Don&apos;t have account?</p>
-                    <Link href={WEBSITE_REGISTER} className="text-primary underline" >Create Account!</Link>
-                  </div>
-                  <div className="mt-2">
-                    <Link href="" className="text-primary underline" >Forgot Pasword?</Link>
-
-                  </div>
+                <div className="flex justify-center items-center gap-2">
+                  <p>Already have account?</p>
+                  <Link
+                    href={WEBSITE_LOGIN}
+                    className="text-primary underline"
+                  >
+                    Login!
+                  </Link>
+                </div>
+                
               </div>
             </form>
           </Form>
@@ -133,4 +186,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default RegisterPage;

@@ -1,5 +1,7 @@
+import { emailVerificationLink } from "@/email/emailVerificationLink";
 import { connectDB } from "@/lib/databaseConnection";
-import { response } from "@/lib/helperFunction";
+import { catchError, response } from "@/lib/helperFunction";
+import { sendMail } from "@/lib/sendMail";
 import { StrongAuthSchema } from "@/lib/zodSchema";
 import UserModel from "@/models/User.model";
 import { SignJWT } from "jose";
@@ -20,6 +22,7 @@ export async function POST(request) {
         )
     }
     const {name,email,password} = validatedData.data
+    
     // check already registerd user 
     const checkUser = await UserModel.exists({email})
     if(checkUser){
@@ -37,5 +40,13 @@ export async function POST(request) {
     .setExpirationTime('1hr')
     .setProtectedHeader({alg: 'HS256'})
     .sign(secret)
-  } catch (error) {}
+
+
+
+    await sendMail('Email Verification request from Admin', email, emailVerificationLink(`${process.env.NEXT_PUBLIC_BASE_URL}/verify-email/${token}`))
+
+    return response(true, 200, 'Registration Successful. Please Verify your email address.')
+  } catch (error) {
+    catchError(error)
+  }
 }

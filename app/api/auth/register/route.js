@@ -8,7 +8,7 @@ import { SignJWT } from "jose";
 
 
 export async function POST(request) {
-  try {
+//   try {
     await connectDB();
     // validation schema 
     const validationSchema = StrongAuthSchema.pick({
@@ -46,7 +46,7 @@ export async function POST(request) {
     await sendMail('Email Verification request from Admin', email, emailVerificationLink(`${process.env.NEXT_PUBLIC_BASE_URL}/verify-email/${token}`))
 
     return response(true, 200, 'Registration Successful. Please Verify your email address.')
-  } catch (error) {
-    catchError(error)
-  }
+//   } catch (error) {
+//    return catchError(error)
+//   }
 }

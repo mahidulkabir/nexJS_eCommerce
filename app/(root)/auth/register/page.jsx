@@ -22,6 +22,7 @@ import ButtonLoading from "@/components/Application/ButtonLoading";
 import Link from "next/link";
 import { WEBSITE_LOGIN } from "@/routes/WebsiteRoute";
 import axios from "axios";
+import { showToast } from "@/lib/showToast";
 
 const RegisterPage = () => {
   const [loading, setLoading] = useState(false);
@@ -49,21 +50,29 @@ const RegisterPage = () => {
     },
   });
 
-  const handleRegisterSubmit = async (values) => {
-    try{
-      setLoading(true)
-      const {data:registerResponse}= await axios.post('/api/auth/register', values)
-      if(!registerResponse.success){
-        throw new Error(registerResponse.message)
-      }
-      form.reset()
-      alert(registerResponse.message)
-    }catch(error){
-      alert(error.message)
-    }finally{
-      setLoading(false)
+ const handleRegisterSubmit = async (values) => {
+  try {
+    setLoading(true);
+
+    const { data } = await axios.post("/api/auth/register", values);
+
+    if (!data.success) {
+      throw new Error(data.message);
     }
-  };
+
+    form.reset();
+    showToast("success", data.message);
+
+  } catch (error) {
+    showToast(
+      "error",
+      error.response?.data?.message || error.message || "Registration failed"
+    );
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <Card className="w-[400px]">

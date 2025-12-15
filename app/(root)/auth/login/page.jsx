@@ -21,6 +21,8 @@ import { Input } from "@/components/ui/input";
 import ButtonLoading from "@/components/Application/ButtonLoading";
 import Link from "next/link";
 import { WEBSITE_REGISTER } from "@/routes/WebsiteRoute";
+import axios from "axios";
+import { showToast } from "@/lib/showToast";
 
 const LoginPage = () => {
   const [loading, setLoading] = useState(false);
@@ -39,9 +41,29 @@ const LoginPage = () => {
     },
   });
 
-  const handleLoginSubmit = async (value) => {
-    console.log(value);
-  };
+  const handleLoginSubmit = async (values) => {
+  try {
+    setLoading(true);
+
+    const { data } = await axios.post("/api/auth/login", values);
+
+    if (!data.success) {
+      throw new Error(data.message);
+    }
+
+    form.reset();
+    showToast("success", data.message);
+
+  } catch (error) {
+    showToast(
+      "error",
+      error.response?.data?.message || error.message || "Login failed"
+    );
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <Card className="w-[400px]">
@@ -116,14 +138,20 @@ const LoginPage = () => {
                 />
               </div>
               <div className="text-center my-2">
-                  <div className="flex justify-center items-center gap-2">
-                    <p>Don&apos;t have account?</p>
-                    <Link href={WEBSITE_REGISTER} className="text-primary underline" >Create Account!</Link>
-                  </div>
-                  <div className="mt-2">
-                    <Link href="" className="text-primary underline" >Forgot Pasword?</Link>
-
-                  </div>
+                <div className="flex justify-center items-center gap-2">
+                  <p>Don&apos;t have account?</p>
+                  <Link
+                    href={WEBSITE_REGISTER}
+                    className="text-primary underline"
+                  >
+                    Create Account!
+                  </Link>
+                </div>
+                <div className="mt-2">
+                  <Link href="" className="text-primary underline">
+                    Forgot Pasword?
+                  </Link>
+                </div>
               </div>
             </form>
           </Form>

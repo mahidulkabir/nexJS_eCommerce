@@ -29,7 +29,7 @@ const LoginPage = () => {
   const [loading, setLoading] = useState(false);
   const [isTypePassword, setIsTypePassword] = useState(true);
   const [otpVerificationLoading, setOtpVerificationLoading] = useState(false)
-  const [otpEmail, setOtpEmail] = useState(true);
+  const [otpEmail, setOtpEmail] = useState(null);
   const formSchema = StrongAuthSchema.pick({
     email: true,
   }).extend({
@@ -66,8 +66,26 @@ const LoginPage = () => {
     }
   };
 
-  const handleOtpVerification = async ()=>{
-    alert('hello from the othe side')
+  //  otp verification 
+  const handleOtpVerification = async (values)=>{
+   try {
+      setOtpVerificationLoading(true);
+
+      const { data } = await axios.post("/api/auth/verify-otp", values);
+
+      if (!data.success) {
+        throw new Error(data.message);
+      }
+      setOtpEmail("");
+      showToast("success", data.message);
+    } catch (error) {
+      showToast(
+        "error",
+        error.response?.data?.message || error.message || "Login failed"
+      );
+    } finally {
+      setOtpVerificationLoading(false);
+    }
   }
 
   return (
@@ -165,9 +183,9 @@ const LoginPage = () => {
             </div>
           </>
         ) : (
-          <>
+         
             <OTPVerification email = {otpEmail} onSubmit={handleOtpVerification} loading={otpVerificationLoading} />
-          </>
+        
         )}
       </CardContent>
     </Card>

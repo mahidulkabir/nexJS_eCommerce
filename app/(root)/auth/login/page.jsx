@@ -20,18 +20,26 @@ import { z } from "zod";
 import { Input } from "@/components/ui/input";
 import ButtonLoading from "@/components/Application/ButtonLoading";
 import Link from "next/link";
-import { WEBSITE_REGISTER, WEBSITE_RESETPASSWORD } from "@/routes/WebsiteRoute";
+import {
+  USER_DASHBOARD,
+  WEBSITE_REGISTER,
+  WEBSITE_RESETPASSWORD,
+} from "@/routes/WebsiteRoute";
 import axios from "axios";
 import { showToast } from "@/lib/showToast";
 import OTPVerification from "@/components/Application/OTPVerification";
 import { useDispatch } from "react-redux";
 import { login } from "@/store/reducer/authReducer";
+import { useRouter, useSearchParams } from "next/navigation";
+import { ADMIN_DASHBOARD } from "@/routes/AdminPanelRoute";
 
 const LoginPage = () => {
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
+  const searchParams = useSearchParams();
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [isTypePassword, setIsTypePassword] = useState(true);
-  const [otpVerificationLoading, setOtpVerificationLoading] = useState(false)
+  const [otpVerificationLoading, setOtpVerificationLoading] = useState(false);
   const [otpEmail, setOtpEmail] = useState(null);
   const formSchema = StrongAuthSchema.pick({
     email: true,
@@ -69,9 +77,9 @@ const LoginPage = () => {
     }
   };
 
-  //  otp verification 
-  const handleOtpVerification = async (values)=>{
-   try {
+  //  otp verification
+  const handleOtpVerification = async (values) => {
+    try {
       setOtpVerificationLoading(true);
 
       const { data } = await axios.post("/api/auth/verify-otp", values);
@@ -82,8 +90,15 @@ const LoginPage = () => {
       setOtpEmail("");
       showToast("success", data.message);
 
-      dispatch(login(data))
+      dispatch(login(data.data));
 
+      if (searchParams.has("callback")) {
+        router.push(searchParams.get("callback"));
+      } else {
+        data.data.role === "admin"
+          ? router.push(ADMIN_DASHBOARD)
+          : router.push(USER_DASHBOARD);
+      }
     } catch (error) {
       showToast(
         "error",
@@ -92,7 +107,7 @@ const LoginPage = () => {
     } finally {
       setOtpVerificationLoading(false);
     }
-  }
+  };
 
   return (
     <Card className="w-[400px]">
@@ -179,7 +194,10 @@ const LoginPage = () => {
                       </Link>
                     </div>
                     <div className="mt-2">
-                      <Link href={WEBSITE_RESETPASSWORD} className="text-primary underline">
+                      <Link
+                        href={WEBSITE_RESETPASSWORD}
+                        className="text-primary underline"
+                      >
                         Forgot Pasword?
                       </Link>
                     </div>
@@ -189,9 +207,11 @@ const LoginPage = () => {
             </div>
           </>
         ) : (
-         
-            <OTPVerification email = {otpEmail} onSubmit={handleOtpVerification} loading={otpVerificationLoading} />
-        
+          <OTPVerification
+            email={otpEmail}
+            onSubmit={handleOtpVerification}
+            loading={otpVerificationLoading}
+          />
         )}
       </CardContent>
     </Card>

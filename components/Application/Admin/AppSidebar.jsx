@@ -27,7 +27,7 @@ import Link from "next/link";
 
 const AppSidebar = () => {
   return (
-    <Sidebar>
+    <Sidebar className="z-50">
       <SidebarHeader className={"border-b h-14 p-0"}>
         <div className="flex justify-between items-center px-4">
           <Image
@@ -52,14 +52,14 @@ const AppSidebar = () => {
         </div>
       </SidebarHeader>
 
-      <SidebarContent>
+      <SidebarContent className="p-3">
         <SidebarMenu>
           {adminAppSidebarMenu.map((menu, index) => (
             <Collapsible key={index} className="group/collapsible">
               <SidebarMenuItem>
                 <CollapsibleTrigger asChild>
-                  <SidebarMenuButton asChild>
-                    <Link href={menu?.url}  >
+                  <SidebarMenuButton asChild className="font-semibold px-2 py-5">
+                    <Link href={menu?.url}>
                       <menu.icon className="h-4 w-4" />
                       {menu.title}
                       {menu.submenu && menu.submenu.length > 0 && (
@@ -74,7 +74,7 @@ const AppSidebar = () => {
                     <SidebarMenuSub>
                         {menu.submenu.map((submenuItem, subMenuIndex)=>(
                             <SidebarMenuSubItem key={subMenuIndex}>
-                                <SidebarMenuSubButton asChild>
+                                <SidebarMenuSubButton asChild className="px-2 py-5">
                                     <Link href={submenuItem.url}>
                                     {submenuItem.title}
                                     </Link>

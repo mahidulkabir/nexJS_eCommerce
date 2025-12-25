@@ -15,6 +15,11 @@ const mediaSchema = new mongoose.Schema({
         required: true,
         trim:true
     },
+    secure_url:{
+        type:String,
+        required: true,
+        trim:true
+    },  
     alt:{
         type:String,
         trim:true

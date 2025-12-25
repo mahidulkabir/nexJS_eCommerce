@@ -1,5 +1,4 @@
 import { DropdownMenuItem } from '@/components/ui/dropdown-menu'
-import { catchError } from '@/lib/helperFunction';
 import { showToast } from '@/lib/showToast';
 import { WEBSITE_HOME } from '@/routes/WebsiteRoute';
 import { logout } from '@/store/reducer/authReducer';

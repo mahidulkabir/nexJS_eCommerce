@@ -13,6 +13,7 @@ import { BsThreeDotsVertical } from "react-icons/bs";
 import { MdOutlineModeEdit } from "react-icons/md";
 import { MdDeleteOutline } from "react-icons/md";
 import { IoLinkOutline } from "react-icons/io5";
+import { showToast } from "@/lib/showToast";
 
 const Media = ({
   media,
@@ -21,8 +22,21 @@ const Media = ({
   selectedMedia,
   setSelectedMedia,
 }) => {
-  const handleCheck = () => {};
+  const handleCheck = () => {
+    let newSelectedMedia = []
+    if (selectedMedia.includes(media._id)){
+        newSelectedMedia = selectedMedia.filter(m=>m!== media._id)
+    } else{
+        newSelectedMedia = [... selectedMedia, media._id]
+    }
 
+    setSelectedMedia(newSelectedMedia)
+  }
+
+  const handleCopyLink = async(url)=>{
+    await navigator.clipboard.writeText(url)
+    showToast('success', 'Link Copied.')
+  }
   return (
     <div className="border border-gray-200 dark:border-gray-800 relative group rounded overflow-hidden">
       <div className="absolute top-2 left-2 z-20">
@@ -51,7 +65,7 @@ const Media = ({
                     Edit
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem className="cursor-pointer">
+                <DropdownMenuItem className="cursor-pointer" onClick={()=> handleCopyLink(media.secure_url)}>
                   <IoLinkOutline />
                   Copy Link
                 </DropdownMenuItem>

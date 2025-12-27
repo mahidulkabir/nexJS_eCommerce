@@ -16,13 +16,14 @@ export async function GET (request){
 
          const page = parseInt(searchParams.get('page'),10) || 0
          const limit = parseInt(searchParams.get('limit'),10) || 10
-         const deleteType = searchParams.get('deleteType') //SD=> soft delet, RSD=> restore soft delete, PD => Permanent Delete 
+         const deleteType = searchParams.get('deleteType')
+          //SD=> soft delet, RSD=> restore soft delete, PD => Permanent Delete 
 
          let filter = {}
          if (deleteType === 'sd'){
-            filter = {deleteAt: null}
+            filter = {deletedAt: null}
          } else if (deleteType === 'PD'){
-            filter = {deleteAt:{$ne:null}}
+            filter = {deletedAt:{$ne:null}}
          }
 
 

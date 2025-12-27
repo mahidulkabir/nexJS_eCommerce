@@ -43,7 +43,7 @@ const Media = ({
         <Checkbox
           checked={selectedMedia.includes(media._id)}
           onCheckedChange={handleCheck}
-          className={"border-primary"}
+          className={"border-primary cursor-pointer"}
         />
       </div>
       <div className="absolute top-2 right-2 z-20">
@@ -56,7 +56,8 @@ const Media = ({
           <DropdownMenuContent align="start">
             {deleteType === "SD" && (
               <>
-                <DropdownMenuItem className="cursor-pointer">
+              {/* menu item 1 */}
+                <DropdownMenuItem asChild className="cursor-pointer">
                   <Link
                     href={ADMIN_MEDIA_EDIT(media._id)}
                     className="flex gap-1 justify-center items-center "
@@ -65,13 +66,15 @@ const Media = ({
                     Edit
                   </Link>
                 </DropdownMenuItem>
+                {/* menu item 2 */}
                 <DropdownMenuItem className="cursor-pointer" onClick={()=> handleCopyLink(media.secure_url)}>
                   <IoLinkOutline />
                   Copy Link
                 </DropdownMenuItem>
               </>
             )}
-            <DropdownMenuItem className="cursor-pointer">
+            {/* menu item 3 */}
+            <DropdownMenuItem className="cursor-pointer"onClick={()=> handleDelete([media._id], deleteType)} >
                   <MdDeleteOutline color="red" />
                     
                     {deleteType === 'SD' ? 'Move Into Trash' : 'Delete Permanently'}
@@ -84,7 +87,7 @@ const Media = ({
       <div className="w-full h-full absolute z-10 transition-all duration-150 ease-in group-hover:bg-black/20"></div>
       <div>
         <Image
-          src={media?.secure_url}
+          src={media?.secure_url} 
           alt={media?.alt || "Image"}
           height={300}
           width={300}

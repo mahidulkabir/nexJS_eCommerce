@@ -35,12 +35,11 @@ const MediaPage = () => {
       }
     }
   },[searchParams])
+
   const fetchMedia = async (page, deleteType) => {
     const { data: response } = await axios.get(
       `/api/media?page=${page}&&limit=10&&deleteType=${deleteType}`
-    );
-
-  
+    )
     return response;
   };
 
@@ -62,14 +61,15 @@ const MediaPage = () => {
     },
   });
   const deleteMutation = useDeleteMutation('media-data', '/api/media/delete')
-  const handleDelete = (selectedMedia, deleteType) => {};
+
+  const handleDelete = (ids, deleteType) => {
 
     let c = true 
     if (deleteType === 'PD'){
       c=confirm('Are you sure you want to delete the data permanently?')
-      
+    }
       if(c){
-         deleteMutation.mutate({selectedMedia, deleteType})
+         deleteMutation.mutate({ids, deleteType})
       }
       setSelectAll(false)
       setSelectedMedia([])
@@ -156,11 +156,14 @@ const MediaPage = () => {
               <div className="grid lg:grid-cols-5 sm:grid-cols-3 grid-cols-2 gap-2 mb-5">
                 {data?.pages?.map((page, index) => (
                   <React.Fragment key={index}>
-                    {page?.mediaData?.map((media) => (
+                    
+                    {
+                    
+                    page?.mediaData?.map((media) => (
                       <Media
                         key={media._id}
                         media={media}
-                        handleDelete={handleDelete}
+                        handleDelete={handleDelete} 
                         deleteType={deleteType}
                         selectedMedia={selectedMedia}
                         setSelectedMedia={setSelectedMedia}

@@ -1,5 +1,6 @@
 import { showToast } from "@/lib/showToast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import axios from "axios";
 
 const useDeleteMutation = (queryKey, deleteEndpoint)=>{
     const QueryClient = useQueryClient()
@@ -17,7 +18,7 @@ const useDeleteMutation = (queryKey, deleteEndpoint)=>{
             return response
         }, 
         onSuccess:(data)=>{
-            showToast('success', message)
+            showToast('success', data.message)
             QueryClient.invalidateQueries([queryKey])
         },
         onError:(error)=>{

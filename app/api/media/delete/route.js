@@ -32,6 +32,8 @@ export async function PUT(request) {
              await MediaModel.updateMany({_id:{$in:ids}},{$set:{deletedAt:null}})
         }
 
+        return response(true, 200, deleteType ===  'SD' ? 'Data moved into trash': 'Data restored from trash')
+
     } catch (error) {
      return catchError(error)   
     }
@@ -77,6 +79,8 @@ export async function DELETE(request) {
             session.endSession()
             return response(true, 200, 'Data Deleted Permanently')
     } catch (error) {
+        await session.abortTransaction()
+            session.endSession()
      return catchError(error)   
     }
 }

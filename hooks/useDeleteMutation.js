@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 
 const useDeleteMutation = (queryKey, deleteEndpoint)=>{
-    const QueryClient = useQueryClient()
+    const queryClient = useQueryClient()
 
     return useMutation({
         mutationFn: async ({ids, deleteType}) => {
@@ -18,8 +18,8 @@ const useDeleteMutation = (queryKey, deleteEndpoint)=>{
             return response
         }, 
         onSuccess:(data)=>{
-            showToast('success', data.message)
-            QueryClient.invalidateQueries([queryKey])
+            showToast('success',data.message)
+            queryClient.invalidateQueries([queryKey])
         },
         onError:(error)=>{
             showToast('error',error.message)

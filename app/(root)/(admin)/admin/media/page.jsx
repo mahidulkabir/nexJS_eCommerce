@@ -63,6 +63,7 @@ const MediaPage = () => {
       return lastPage.hasMOre ? nextPage : undefined;
     },
   });
+  
   const deleteMutation = useDeleteMutation('media-data', '/api/media/delete')
 
   const handleDelete = (ids, deleteType) => {

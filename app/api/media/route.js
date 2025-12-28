@@ -20,7 +20,7 @@ export async function GET (request){
           //SD=> soft delet, RSD=> restore soft delete, PD => Permanent Delete 
 
          let filter = {}
-         if (deleteType === 'sd'){
+         if (deleteType === 'SD'){
             filter = {deletedAt: null}
          } else if (deleteType === 'PD'){
             filter = {deletedAt:{$ne:null}}

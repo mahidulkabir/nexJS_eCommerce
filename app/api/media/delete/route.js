@@ -42,7 +42,7 @@ export async function PUT(request) {
 export async function DELETE(request) {
 
         const session = await mongoose.startSession()
-        session.startTransaction
+        session.startTransaction()
     try {
         const auth = await isAuthenticated('admin')
         if(!auth.isAuth){
@@ -67,7 +67,7 @@ export async function DELETE(request) {
         await MediaModel.deleteMany({_id:{$in:ids}}).session(session)
         // delete all media from cloudinary 
 
-        const publicIds= media.map(m=>m.publilc_id)
+        const publicIds= media.map(m => m.publilc_id)
 
         try {
             await cloudinary.api.delete_resources(publicIds)

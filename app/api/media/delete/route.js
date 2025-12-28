@@ -41,6 +41,7 @@ export async function PUT(request) {
 
 export async function DELETE(request) {
 
+    await connectDB()
         const session = await mongoose.startSession()
         session.startTransaction()
     try {
@@ -49,7 +50,6 @@ export async function DELETE(request) {
             return response(false, 403, 'Unauthorized.')
 
         }
-        await connectDB()
         const payload = await request.json()
         const ids = payload.ids || []
         const deleteType = payload.deleteType
@@ -61,19 +61,20 @@ export async function DELETE(request) {
         if(!media.length){
             return response(false, 404, 'Data not found.')
         }
-        if(!deleteType=== 'PD'){
+        if(deleteType !== 'PD'){
               return response(false, 400, 'Invalid delete operation. Delete  type should be PD for this route')
         }
         await MediaModel.deleteMany({_id:{$in:ids}}).session(session)
         // delete all media from cloudinary 
 
-        const publicIds= media.map(m => m.publilc_id)
-
+        const publicIds= media.map(m => m.public_id)
+        
         try {
             await cloudinary.api.delete_resources(publicIds)
         } catch (error) {
             await session.abortTransaction()
             session.endSession()
+            return response(false, 500, 'Failed to delete media from Cloudinary Mahi')
         }
         await session.commitTransaction()
             session.endSession()

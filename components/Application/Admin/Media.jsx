@@ -60,7 +60,7 @@ const Media = ({
                 <DropdownMenuItem asChild className="cursor-pointer">
                   <Link
                     href={ADMIN_MEDIA_EDIT(media._id)}
-                    className="flex gap-1 justify-center items-center "
+                    className="cursor-pointer "
                   >
                     <MdOutlineModeEdit />
                     Edit

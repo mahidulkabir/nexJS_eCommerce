@@ -22,7 +22,10 @@ const breadCrumbData = [
 const MediaPage = () => {
   const [deleteType, setDeleteType] = useState("SD");
   const [selectedMedia, setSelectedMedia] = useState([])
+
+
   const [selectAll, setSelectAll] = useState(false)
+  
   const searchParams = useSearchParams()
   useEffect(()=>{
     if (searchParams){
@@ -94,11 +97,13 @@ const MediaPage = () => {
           <CardHeader className="pt-3 px-3 border-b [.border-b:pb-2] ">
             <div className="flex justify-between items-center">
               <h4 className="font-semibold text-xl uppercase"> 
-                  {deleteType === 'SD'? 'Media':'Media Trash'}
+                  {deleteType === 'SD' ? 'Media': 'Media Trash'}
               </h4>
               <div className="flex items-center gap-5">
+
                {deleteType === 'SD' && <UploadMedia />} 
-                <div>
+
+                <div className="flex gap-3">
                   {deleteType === "SD" ? (
                     <Button type="button" variant="destructive">
                       <Link href={`${ADMIN_MEDIA_SHOW}?trashof=media`}>
@@ -119,7 +124,7 @@ const MediaPage = () => {
           <CardContent>
 
                 {selectedMedia.length > 0 &&
-                  <div className="py-2 px-3 bg-violet-100 mb-2 rounded flex justify-between items-center">
+                  <div className="py-2 px-3 bg-violet-200 mb-2 rounded flex justify-between items-center">
                     <Label>
                       <Checkbox
                         checked={selectAll}

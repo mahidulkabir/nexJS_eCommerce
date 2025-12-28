@@ -84,12 +84,13 @@ const MediaPage = () => {
 
   useEffect(()=>{
     if(selectAll){
-      const ids = data.pages.flatMap(page=>page.mediaData.map(media=>media._id));
+      const ids = data.pages.flatMap(page => page.mediaData.map(media => media._id));
       setSelectedMedia(ids)
     } else{
        setSelectedMedia([])
     }
-  },[selectAll])
+  }, [selectAll])
+  
   return (
     <div>
       <BreadCrumb breadCrumbData={breadCrumbData}>
@@ -144,6 +145,7 @@ const MediaPage = () => {
                     <Button className="bg-green-500  hover:bg-green-600" onClick={()=>handleDelete(selectedMedia, "RSD")}>
                       Restore
                     </Button>
+
                     <Button variant="destructive" onClick={()=>handleDelete(selectedMedia, deleteType)}>
                       Delete Permanently 
                     </Button>

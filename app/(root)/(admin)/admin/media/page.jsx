@@ -47,22 +47,16 @@ const MediaPage = () => {
     return response;
   };
 
-  const {
-    data,
-    error,
-    fetchNextPage,
-    hasNextPage,
-    isFetching,
-    status,
-  } = useInfiniteQuery({
-    queryKey: ["media-data", deleteType],
-    queryFn: async ({ pageParam }) => await fetchMedia(pageParam, deleteType),
-    initialPageParam: 0,
-    getNextPageParam: (lastPage, pages) => {
-      const nextPage = pages.length;
-      return lastPage.hasMore ? nextPage : undefined;
-    },
-  });
+  const { data, error, fetchNextPage, hasNextPage, isFetching, status } =
+    useInfiniteQuery({
+      queryKey: ["media-data", deleteType],
+      queryFn: async ({ pageParam }) => await fetchMedia(pageParam, deleteType),
+      initialPageParam: 0,
+      getNextPageParam: (lastPage, pages) => {
+        const nextPage = pages.length;
+        return lastPage.hasMore ? nextPage : undefined;
+      },
+    });
 
   const deleteMutation = useDeleteMutation("media-data", "/api/media/delete");
 
@@ -95,7 +89,7 @@ const MediaPage = () => {
 
   return (
     <div>
-      <BreadCrumb breadCrumbData={breadCrumbData}>
+      <BreadCrumb breadCrumbData={breadCrumbData}/>
         <Card className="py-0 rounded shadow-sm">
           <CardHeader className="pt-3 px-3 border-b [.border-b:pb-2] ">
             <div className="flex justify-between items-center">
@@ -123,7 +117,7 @@ const MediaPage = () => {
               </div>
             </div>
           </CardHeader>
-          <CardContent className='pb-5'>
+          <CardContent className="pb-5">
             {selectedMedia.length > 0 && (
               <div className="py-2 px-3 bg-violet-200 mb-2 rounded flex justify-between items-center">
                 <Label>
@@ -170,8 +164,8 @@ const MediaPage = () => {
               <div className="text-red-500 text-sm">{error.message}</div>
             ) : (
               <>
-                {data.pages.flatMap((page) =>
-                  page.mediaData.map((media) => media._id)
+                {data.pages.flatMap(
+                  (page) => page?.mediaData?.map((media) => media._id) || []
                 ).length === 0 && (
                   <div className="text-center"> No Media Yet</div>
                 )}
@@ -194,15 +188,18 @@ const MediaPage = () => {
                 </div>
               </>
             )}
-            {hasNextPage &&
-            <ButtonLoading type="button" className="cursor-pointer" loading={isFetching} onClick={()=>fetchNextPage()}
-              text="Load More"
-            /> 
-            
-            }
+            {hasNextPage && (
+              <ButtonLoading
+                type="button"
+                className="cursor-pointer"
+                loading={isFetching}
+                onClick={() => fetchNextPage()}
+                text="Load More"
+              />
+            )}
           </CardContent>
         </Card>
-      </BreadCrumb>
+     
     </div>
   );
 };

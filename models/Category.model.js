@@ -17,5 +17,5 @@ const cetegorySchema = new mongoose.Schema({
 
 cetegorySchema.index({ expiresAt:1}, {expireAfterSeconds:0})
 
-const CategoryModel = mongoose.models.OTP || mongoose.model('OTP', otpSchema, 'otps')
-export default CategoryModel
+const CategoryModel = mongoose.models.Category || mongoose.model('OTP', otpSchema, 'otps')
+export default CategoryModel 

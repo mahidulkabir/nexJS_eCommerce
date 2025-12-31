@@ -1,21 +1,24 @@
 import mongoose from "mongoose";
-const cetegorySchema = new mongoose.Schema({
-    email:{
+const categorySchema = new mongoose.Schema({
+    name:{
         type:String,
-        required: true
-    },
-    otp:{
-        type:String,
-        required:true
-    },
-    expiresAt: {
-        type: Date,
         required: true,
-        default:() => new Date(Date.now() + 10 * 60 * 1000)
-    }
+        unique: true
+    },
+    slug:{
+        type:String,
+        required: true,
+        unique: true,
+        lowercase: true,
+        trim:true
+    },
+    deletedAt:{
+        type:Date,
+        default:null,
+        index:true
+    },
+ 
 }, {timestamps: true })
 
-cetegorySchema.index({ expiresAt:1}, {expireAfterSeconds:0})
-
-const CategoryModel = mongoose.models.Category || mongoose.model('OTP', otpSchema, 'otps')
-export default CategoryModel 
+const CategoryModel = mongoose.models.Category || mongoose.model('Category', categorySchema, 'categories')
+export default CategoryModel

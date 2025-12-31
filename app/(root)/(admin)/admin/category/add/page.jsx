@@ -17,6 +17,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { StrongAuthSchema } from '@/lib/zodSchema';
 import { useForm } from 'react-hook-form';
 import slugify from 'slugify';
+import { showToast } from '@/lib/showToast';
+import axios from 'axios';
 const breadCrumbData = [
   { href: ADMIN_DASHBOARD, label: "Home" },
   { href: ADMIN_CATEGORY_SHOW, label: "Category" },
@@ -48,7 +50,22 @@ const AddCategory = () => {
     }
   },[form.watch('name')])
 
-  const onSubmit = (values) =>{}
+  const onSubmit = async (values) =>{
+    setLoading(true)
+    try {
+        const {data:response} = await axios.post('/api/category/create', values)
+        if(!response.success){
+            throw new Error (response.message)
+        }
+
+        form.reset()
+        showToast('success', response.message)
+    } catch (error) {
+        showToast('error', error.message)
+    }finally{
+            setLoading(false)
+    }
+  }
 
 
 

@@ -1,7 +1,13 @@
+import { IconButton, Tooltip } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
-import { useMaterialReactTable } from "material-react-table";
+import { MRT_ShowHideColumnsButton, MRT_ToggleDensePaddingButton, MRT_ToggleFullScreenButton, MRT_ToggleGlobalFilterButton, useMaterialReactTable } from "material-react-table";
+import Link from "next/link";
 import { useState } from "react";
+import RecyclingIcon from '@mui/icons-material/Recycling';
+import DeleteIcon from '@mui/icons-material/Delete';
+import RestoreIcon from '@mui/icons-material/Restore';
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 
 const Datatable = ({
   queryKey,
@@ -26,6 +32,14 @@ const Datatable = ({
   // Row selection state 
 
   const [selectedRows, setRowSelection] = useState();
+
+  //handle delete method
+
+  const handleDelete =()=>{
+
+  }
+
+
 
 
   // data fetching logics
@@ -54,6 +68,9 @@ const Datatable = ({
     },
     placeholderData: keepPreviousData,
   });
+
+
+
 
 //   init table 
 
@@ -95,6 +112,66 @@ const Datatable = ({
     },
 
     getRowId: (originalRow) => originalRow._id,
+
+    renderToolbarInternalActions: ({table}) =>(
+      <>
+        {/* built in buttons  */}
+        <MRT_ToggleGlobalFilterButton table={table } />
+        <MRT_ShowHideColumnsButton table={table} />
+        <MRT_ToggleFullScreenButton table={table} />
+        <MRT_ToggleDensePaddingButton table={table} />
+
+        {deleteType !== 'PD'
+          && 
+          <Tooltip title="Recycle Bin">
+             <Link href={trashView}>
+                <IconButton>
+                  <RecyclingIcon/>
+                </IconButton>
+             </Link>
+          </Tooltip> 
+        }
+        {deleteType === 'SD'
+          && 
+
+          <Tooltip title="Delete All">
+             <Link href={trashView}>
+                <IconButton disabled ={!table.getIsSomeRowsSelected() && !table.getIsAllRowsSelected()}
+                onClick={()=> handleDelete()}
+                >
+
+                  <DeleteIcon/>
+
+                </IconButton>
+             </Link>
+          </Tooltip> 
+        }
+        {deleteType === 'PD'
+          && 
+          <>
+          
+          <Tooltip title="Restore Data">
+             <IconButton disabled ={!table.getIsSomeRowsSelected() && !table.getIsAllRowsSelected()}
+                onClick={()=> handleDelete()}
+                >
+
+                  <RestoreIcon/>
+
+                </IconButton>
+          </Tooltip> 
+          <Tooltip title="Permanently Delete">
+             <IconButton disabled ={!table.getIsSomeRowsSelected() && !table.getIsAllRowsSelected()}
+                onClick={()=> handleDelete()}
+                >
+
+                  <DeleteForeverIcon/>
+
+                </IconButton>
+          </Tooltip> 
+                  </>
+        }
+      </>
+    )
   })
 
   return (

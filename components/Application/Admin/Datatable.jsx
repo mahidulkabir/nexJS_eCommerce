@@ -1,3 +1,4 @@
+'use client'
 import { IconButton, Tooltip } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
@@ -8,7 +9,13 @@ import RecyclingIcon from '@mui/icons-material/Recycling';
 import DeleteIcon from '@mui/icons-material/Delete';
 import RestoreIcon from '@mui/icons-material/Restore';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
-
+import useDeleteMutation from "@/hooks/useDeleteMutation";
+import ButtonLoading from "../ButtonLoading";
+import SystemUpdateAltIcon from '@mui/icons-material/SystemUpdateAlt';
+import { async } from './../../../app/api/test/route';
+import { showToast } from "@/lib/showToast";
+import { download, generateCsv, mkConfig } from "export-to-csv";
+import { response } from './../../../lib/helperFunction';
 const Datatable = ({
   queryKey,
   fetchUrl,
@@ -31,16 +38,68 @@ const Datatable = ({
 
   // Row selection state 
 
-  const [selectedRows, setRowSelection] = useState();
+  const [rowSelection, setRowSelection] = useState({});
+
+  // Export loading state 
+
+  const [exportLoading, setExportLoading] = useState(false)
 
   //handle delete method
+const deleteMutation = useDeleteMutation(queryKey, deleteEndpoint)
 
-  const handleDelete =()=>{
 
+
+//deleteMethod
+ const handleDelete = (ids, deleteType) => {
+    let c 
+    if (deleteType === "PD") {
+      c = confirm("Are you sure you want to delete the data permanently?");
+    }else{
+        c = confirm("Are you sure you want to move data into trash?");
+    }
+    if (c) {
+      deleteMutation.mutate({ ids, deleteType })
+      setRowSelection({})
+    }
+ 
+  };
+
+//export method
+
+const handleExport = async(selectedRows)=>{
+  setExportLoading(true)
+  try {
+    const csvConfig = mkConfig({
+      fieldSeparator:',',
+      decimalSeparator:'.',
+      filename: 'csv-data'
+    })
+
+    let csv
+    if(Object.keys(rowSelection).length > 0){
+      //export only selected rows
+      const rowData = selectedRows.map((row) => row.original)
+      csv = generateCsv(csvConfig)(rowData)
+    }else{
+        // export all data
+        const {data:response} = await axios.get(exportEndpoint)
+        if(!response.success){
+          throw new Error (response.message)
+        }
+
+        const rowData = response.data
+        csv = generateCsv(csvConfig)(rowData)
+    }
+
+    download(csvConfig)(csv)
+
+  } catch (error) {
+    console.log(error)
+    showToast('error', error.message)
+  }finally{
+    setExportLoading(false)
   }
-
-
-
+}
 
   // data fetching logics
 
@@ -137,7 +196,7 @@ const Datatable = ({
           <Tooltip title="Delete All">
              <Link href={trashView}>
                 <IconButton disabled ={!table.getIsSomeRowsSelected() && !table.getIsAllRowsSelected()}
-                onClick={()=> handleDelete()}
+                onClick={()=> handleDelete(Object.keys(rowSelection), deleteType)}
                 >
 
                   <DeleteIcon/>
@@ -152,7 +211,7 @@ const Datatable = ({
           
           <Tooltip title="Restore Data">
              <IconButton disabled ={!table.getIsSomeRowsSelected() && !table.getIsAllRowsSelected()}
-                onClick={()=> handleDelete()}
+                onClick={()=> handleDelete(Object.keys(rowSelection),'RSD')}
                 >
 
                   <RestoreIcon/>
@@ -161,7 +220,7 @@ const Datatable = ({
           </Tooltip> 
           <Tooltip title="Permanently Delete">
              <IconButton disabled ={!table.getIsSomeRowsSelected() && !table.getIsAllRowsSelected()}
-                onClick={()=> handleDelete()}
+                onClick={()=> handleDelete(Object.keys(rowSelection),deleteType)}
                 >
 
                   <DeleteForeverIcon/>
@@ -171,6 +230,21 @@ const Datatable = ({
                   </>
         }
       </>
+    ),
+    enableRowActions: true,
+    positionActionsColumn:'last',
+    renderRowActionMenuItems:({row}) => createAction(row, deleteType, handleDelete),
+
+    renderTopToolbarCustomActions:({table}) =>(
+      <Tooltip>
+        <ButtonLoading 
+        type="button"
+        text={<><SystemUpdateAltIcon/>Export</>}
+        loading={exportLoading}
+        onClick={()=>handleExport(table.getSelectedRowModel().rows)}
+        
+        />
+      </Tooltip>
     )
   })
 

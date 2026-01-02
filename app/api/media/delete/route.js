@@ -1,9 +1,9 @@
 import cloudinary from "@/lib/cloudinary";
 import { connectDB } from "@/lib/databaseConnection";
-import { catchError, isAuthenticated, response } from "@/lib/helperFunction";
+import { catchError, response } from "@/lib/helperFunction";
 import MediaModel from "@/models/Media.model";
 import mongoose from "mongoose";
-
+import { isAuthenticated } from "@/lib/authentication"
 export async function PUT(request) {
     try {
         const auth = await isAuthenticated('admin')

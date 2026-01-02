@@ -5,7 +5,7 @@ import Datatable from "./Datatable"
 import { useEffect, useState } from "react"
 import { darkTheme, lightTheme } from "@/lib/materialTheme"
 
-const { ThemeProvider } = require("@mui/material")
+const { ThemeProvider } = require("@mui/material/styles")
 
 const DatatableWrapper = ({
      queryKey,

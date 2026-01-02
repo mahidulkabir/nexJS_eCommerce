@@ -1,8 +1,8 @@
 'use client'
 import { IconButton, Tooltip } from "@mui/material";
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import axios from "axios";
-import { MRT_ShowHideColumnsButton, MRT_ToggleDensePaddingButton, MRT_ToggleFullScreenButton, MRT_ToggleGlobalFilterButton, useMaterialReactTable } from "material-react-table";
+import { MaterialReactTable, MRT_ShowHideColumnsButton, MRT_ToggleDensePaddingButton, MRT_ToggleFullScreenButton, MRT_ToggleGlobalFilterButton, useMaterialReactTable } from "material-react-table";
 import Link from "next/link";
 import { useState } from "react";
 import RecyclingIcon from '@mui/icons-material/Recycling';
@@ -12,10 +12,10 @@ import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import useDeleteMutation from "@/hooks/useDeleteMutation";
 import ButtonLoading from "../ButtonLoading";
 import SystemUpdateAltIcon from '@mui/icons-material/SystemUpdateAlt';
-import { async } from './../../../app/api/test/route';
+
 import { showToast } from "@/lib/showToast";
 import { download, generateCsv, mkConfig } from "export-to-csv";
-import { response } from './../../../lib/helperFunction';
+
 const Datatable = ({
   queryKey,
   fetchUrl,
@@ -138,7 +138,7 @@ const handleExport = async(selectedRows)=>{
     data,
     enableRowSelection:true,
     columnFilterDisplayMode:'popover',
-    paaginationDisplayMode: 'pages',
+    paginationDisplayMode: 'pages',
     enableColumnOrdering: true,
     enableStickyHeader: true,
     enableStickyFooter:true ,
@@ -157,7 +157,7 @@ const handleExport = async(selectedRows)=>{
     onGlobalFilterChange: setGlobalFilter,
     onPaginationChange: setPagination,
     onSortingChange: setSorting,
-    rowCount: data?.meta?.totalRowCount ?? 0, 
+    rowCount: meta?.totalRowCount ?? 0, 
     onRowSelectionChange: setRowSelection,
     state: {
       columnFilters,
@@ -248,10 +248,6 @@ const handleExport = async(selectedRows)=>{
     )
   })
 
-  return (
-    <div>
-      <div>Datatable</div>
-    </div>
-  );
+ return <MaterialReactTable table={table} />;
 };
 export default Datatable;

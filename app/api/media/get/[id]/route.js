@@ -1,8 +1,8 @@
 import { connectDB } from "@/lib/databaseConnection";
-import { catchError, isAuthenticated, response } from "@/lib/helperFunction";
+import { catchError, response } from "@/lib/helperFunction";
 import MediaModel from "@/models/Media.model";
 import { isValidObjectId } from "mongoose";
-
+import { isAuthenticated } from "@/lib/authentication"
 export async function GET(request , {params}) {
     try {
         const auth = await isAuthenticated('admin')

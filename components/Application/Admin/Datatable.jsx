@@ -121,6 +121,7 @@ const handleExport = async(selectedRows)=>{
       url.searchParams.set("filters", JSON.stringify(columnFilters ?? []));
       url.searchParams.set("globalFilter", globalFilter ?? "");
       url.searchParams.set("sorting", JSON.stringify(sorting ?? []));
+      url.searchParams.set("deleteType", deleteType);
 
       const {data: response} = await axios.get(url.href)
       return response
@@ -239,15 +240,14 @@ const handleExport = async(selectedRows)=>{
       <Tooltip>
         <ButtonLoading 
         type="button"
-        text={<><SystemUpdateAltIcon/>Export</>}
+        text={<><SystemUpdateAltIcon fontSize="25"/>Export</>}
         loading={exportLoading}
         onClick={()=>handleExport(table.getSelectedRowModel().rows)}
-        
+        className="cursor-pointer"
         />
       </Tooltip>
     )
   })
-
  return <MaterialReactTable table={table} />;
 };
 export default Datatable;

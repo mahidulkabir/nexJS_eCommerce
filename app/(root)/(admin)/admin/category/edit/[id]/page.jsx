@@ -29,9 +29,11 @@ const breadCrumbData = [
 
 const EditCategory = ({params}) => {
   const {id} = use(params)
-  const {data: categorData} = useFetch(`/api/category/get/${id}`)
+  const {data: categoryData} = useFetch(`/api/category/get/${id}`)
+
   const [loading, setLoading] = useState(false);
   const formSchema = StrongAuthSchema.pick({
+    _id: true,
     name: true,
     slug: true,
   });
@@ -39,11 +41,22 @@ const EditCategory = ({params}) => {
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      _id: id,
       name: "",
       slug: "",
     },
   });
 
+  useEffect(()=>{
+    if(categoryData && categoryData.success){
+      const data = categoryData.data
+      form.reset({
+        _id:data?._id,
+        name: data?.name,
+        slug: data?.slug
+      })
+    }
+  },[categoryData])
 
   useEffect(()=>{
     const name = form.getValues('name')
@@ -55,12 +68,12 @@ const EditCategory = ({params}) => {
   const onSubmit = async (values) =>{
     setLoading(true)
     try {
-        const {data:response} = await axios.post('/api/category/create', values)
+        const {data:response} = await axios.put('/api/category/update', values)
         if(!response.success){
             throw new Error (response.message)
         }
 
-        form.reset()
+  
         showToast('success', response.message)
     } catch (error) {
         showToast('error', error.message)
@@ -121,7 +134,7 @@ const EditCategory = ({params}) => {
                 <ButtonLoading
                   loading={loading}
                   type="submit"
-                  text="Add Category"
+                  text="Update Category"
                   className="cursor-pointer"
                 />
               </div>

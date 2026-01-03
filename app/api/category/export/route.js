@@ -1,9 +1,8 @@
 import { connectDB } from "@/lib/databaseConnection";
 import { catchError, response } from "@/lib/helperFunction";
-import { isValidObjectId } from "mongoose";
 import { isAuthenticated } from "@/lib/authentication"
 import CategoryModel from "@/models/Category.model";
-export async function GET(request , {params}) {
+export async function GET(request ) {
     try {
         const auth = await isAuthenticated('admin')
         if (!auth.isAuth){
@@ -11,22 +10,17 @@ export async function GET(request , {params}) {
         }
         await connectDB()
 
-        const getParams = await params
-        const id = getParams.id
-
+ 
         const filter = {
             deletedAt: null
         }
-        if (!isValidObjectId(id)){
-            return response(false, 400, 'Invalid object id.')
-        }
-        filter._id = id
-        const getCategory = await CategoryModel.findOne(filter).lean()
 
-        if(!getCategory){
-          return response(false, 404, 'Category not found')  
-        }
-        return response(true, 200, 'Category Found', getCategory)
+       const getCategory = await CategoryModel.find(filter).sort({createdAt: -1}).lean()
+
+       if(!getCategory){
+          return response(false, 404, 'Collection Empty.')
+       }
+       return response (true,200, 'Data Found', getCategory)
     } catch (error) {
         return catchError(error)
     }

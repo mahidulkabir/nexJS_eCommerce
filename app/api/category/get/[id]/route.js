@@ -30,4 +30,4 @@ export async function GET(request , {params}) {
     } catch (error) {
         return catchError(error)
     }
-}
+}  

@@ -20,6 +20,8 @@ import slugify from "slugify";
 import { showToast } from "@/lib/showToast";
 import axios from "axios";
 import useFetch from "@/hooks/useFetch";
+import Select from "@/components/Application/Select";
+import Editor from "@/components/Application/Admin/Editor";
 const breadCrumbData = [
   { href: ADMIN_DASHBOARD, label: "Home" },
   { href: ADMIN_PRODUCT_SHOW, label: "Products" },
@@ -29,7 +31,16 @@ const breadCrumbData = [
 const AddProduct = () => {
   const [loading, setLoading] = useState(false);
   const {data: getCategory}=useFetch('/api/category?deleteType=SD&&size=10000')
-  console.log(getCategory)
+ 
+ const [categoryOption, setCategoryOption] = useState([])
+  useEffect(()=>{
+    if(getCategory && getCategory.success){
+      const data = getCategory.data;
+      const options = data.map((cat)=> ({label:cat.name, value:cat._id}))
+      setCategoryOption(options);
+    }
+  },[getCategory])
+
   const formSchema = StrongAuthSchema.pick({
     name: true,
     slug: true,
@@ -60,6 +71,14 @@ const AddProduct = () => {
     }
   }, [form.watch("name")]);
 
+
+  const editor = (event, editor) =>{
+      const data = editor.getData();
+      form.setValue("description", data);
+  }
+
+
+
   const onSubmit = async (values) => {
     setLoading(true);
     try {
@@ -89,7 +108,11 @@ const AddProduct = () => {
         </CardHeader>
         <CardContent className="pb-5">
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="grid md:grid-cols-2 gap-5">
+            <form onSubmit={form.handleSubmit(onSubmit)} >
+              <div className="grid md:grid-cols-2 gap-5">
+
+
+              
               <div className="my-2">
                 <FormField
                   control={form.control}
@@ -121,6 +144,27 @@ const AddProduct = () => {
                           type="text"
                           placeholder="Enter Slug"
                           {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <div className="my-2">
+                <FormField
+                  control={form.control}
+                  name="category"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Category<span className="text-red-600">*</span></FormLabel>
+                      <FormControl>
+                        <Select 
+                        
+                          options={categoryOption}
+                          selected={field.value}
+                          setSelected={field.onChange}
+                          isMulti={false}
                         />
                       </FormControl>
                       <FormMessage />
@@ -185,7 +229,14 @@ const AddProduct = () => {
                   )}
                 />
               </div>
+              <div className="mb-5 md:col-span-2">
+                <FormLabel className="mb-2">Description <span className="text-red-600 ">*</span> </FormLabel>
+               <Editor onChange={editor}  />
+               <FormMessage>
 
+               </FormMessage>
+              </div>
+</div>
               <div>
                 <ButtonLoading
                   loading={loading}

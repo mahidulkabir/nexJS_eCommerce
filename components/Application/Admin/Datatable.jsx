@@ -70,35 +70,32 @@ const handleExport = async(selectedRows)=>{
   setExportLoading(true)
   try {
     const csvConfig = mkConfig({
-  filename: 'categories-csv-data',
-  columnHeaders: [
-    { key: '_id', displayLabel: 'ID' },
-    { key: 'name', displayLabel: 'Category Name' },
-    { key: 'slug', displayLabel: 'Slug' },
-    { key: 'createdAt', displayLabel: 'Created At' },
-    { key: 'updatedAt', displayLabel: 'Updated At' },
-    { key: 'deletedAr', displayLabel: 'Deleted At' },
-  ],
+      fieldSeparator:',',
+      decimalSeparator:'.',
+      useKeysAsHeaders:true,
+  filename: 'Exported-csv-data',
+  
 })
 
    let csv
-let rowData
+
 
 if (Object.keys(rowSelection).length > 0) {
-  rowData = selectedRows.map(row => row.original)
+  // export only selected rows 
+ const  rowData = selectedRows.map((row) => row.original)
+ csv = generateCsv(csvConfig)(rowData)
 } else {
+  // export all data 
   const { data: response } = await axios.get(exportEndpoint)
   if (!response.success) {
     throw new Error(response.message)
   }
-  rowData = response.data
+ const rowData = response.data
+ csv = generateCsv(csvConfig)(rowData) 
 }
 
-if (!rowData || rowData.length === 0) {
-  throw new Error('No data available for export')
-}
 
-csv = generateCsv(csvConfig)(rowData)
+
 download(csvConfig)(csv)
 
   } catch (error) {

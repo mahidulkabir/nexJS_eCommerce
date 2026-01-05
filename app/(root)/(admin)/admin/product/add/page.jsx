@@ -32,14 +32,11 @@ const breadCrumbData = [
 
 const AddProduct = () => {
   const [loading, setLoading] = useState(false);
-  const { data: getCategory } = useFetch(
-    "/api/category?deleteType=SD"
-  );
+  const { data: getCategory } = useFetch("/api/category?deleteType=SD");
 
-  // media modal states 
-const [open, setOpen] = useState(false)
-const [selectedMedia, setSelectedMedia] = useState([])
-
+  // media modal states
+  const [open, setOpen] = useState(false);
+  const [selectedMedia, setSelectedMedia] = useState([]);
 
   const [categoryOption, setCategoryOption] = useState([]);
   useEffect(() => {
@@ -80,6 +77,18 @@ const [selectedMedia, setSelectedMedia] = useState([])
     }
   }, [form.watch("name")]);
 
+    // discount percentage calculation 
+  useEffect(()=>{
+    const mrp = form.getValues('mrp') || 0
+    const sellingPrice = form.getValues('sellingPrice') || 0
+    if(mrp>0 && sellingPrice>0){
+      const discountPercentage = ((mrp - sellingPrice)/mrp) * 100
+      form.setValue('discountPercentage', Math.round(discountPercentage))
+
+    }
+  }, [form.watch('mrp'), form.watch('sellingPrice')])
+
+
   const editor = (event, editor) => {
     const data = editor.getData();
     form.setValue("description", data);
@@ -88,6 +97,14 @@ const [selectedMedia, setSelectedMedia] = useState([])
   const onSubmit = async (values) => {
     setLoading(true);
     try {
+      if(selectedMedia.length<=0){
+        return showToast ('error', 'Please Select Media.')
+      }
+
+
+      const mediaIds = selectedMedia.map(media => media._id)
+      values.media = mediaIds
+
       const { data: response } = await axios.post(
         "/api/product/create",
         values
@@ -236,7 +253,8 @@ const [selectedMedia, setSelectedMedia] = useState([])
                           <Input
                             type="number"
                             placeholder="Enter Discount Percentage"
-                            {...field}
+                            {...field} 
+                            readOnly
                           />
                         </FormControl>
                         <FormMessage />
@@ -253,42 +271,38 @@ const [selectedMedia, setSelectedMedia] = useState([])
                 </div>
               </div>
 
-                    <div className="md:col-span-2 border border-dashed rounded p-5 text-center ">
-                    <MediaModal 
-                      open = {open}
-                      setOpen={setOpen}
-                      selectedMedia={selectedMedia}
-                      setSelectedMedia={setSelectedMedia}
-                      isMultiple={true}
+              <div className="md:col-span-2 border border-dashed rounded p-5 text-center ">
+                <MediaModal
+                  open={open}
+                  setOpen={setOpen}
+                  selectedMedia={selectedMedia}
+                  setSelectedMedia={setSelectedMedia}
+                  isMultiple={true}
+                />
 
-                    /> 
+                {selectedMedia.length > 0 && (
+                  <div className="flex justify-center items-center flex-wrap mb-3 gap-2">
+                    {selectedMedia.map((media) => (
+                      <div key={media._id} className="h-24 w-24 border">
+                        <Image
+                          src={media.url}
+                          height={100}
+                          width={100}
+                          alt=""
+                          className="size-full object-cover"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
 
-                    {selectedMedia.length >0
-                      && <div className="flex justify-center items-center flex-wrap mb-3 gap-2" > 
-                        {selectedMedia.map(media =>(
-                          <div key={media._id} className="h-24 w-24 border">
-                            <Image 
-                            
-                            src={media.url}
-                            height={100}
-                            width={100}
-                            alt=""
-                            className="size-full object-cover"
-                            
-                            />
-                             </div>
-                        ))}
-                        
-                         </div>
-                    
-                    }
-
-
-                    <div onClick={()=>setOpen(true)} className="bg-gray-50 dark:bg-card w-[280px] mx-auto p-5 cursor-pointer">
-                      <span className="font-semibold" >Select Media</span>
-                      
-                    </div>
-                    </div>
+                <div
+                  onClick={() => setOpen(true)}
+                  className="bg-gray-50 dark:bg-card w-[280px] mx-auto p-5 cursor-pointer"
+                >
+                  <span className="font-semibold">Select Media</span>
+                </div>
+              </div>
 
               <div>
                 <ButtonLoading

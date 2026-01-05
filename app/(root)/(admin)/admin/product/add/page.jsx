@@ -23,6 +23,7 @@ import useFetch from "@/hooks/useFetch";
 import Select from "@/components/Application/Select";
 import Editor from "@/components/Application/Admin/Editor";
 import MediaModal from "@/components/Application/Admin/MediaModal";
+import Image from "next/image";
 const breadCrumbData = [
   { href: ADMIN_DASHBOARD, label: "Home" },
   { href: ADMIN_PRODUCT_SHOW, label: "Products" },
@@ -260,7 +261,29 @@ const [selectedMedia, setSelectedMedia] = useState([])
                       setSelectedMedia={setSelectedMedia}
                       isMultiple={true}
 
-                    />
+                    /> 
+
+                    {selectedMedia.length >0
+                      && <div className="flex justify-center items-center flex-wrap mb-3 gap-2" > 
+                        {selectedMedia.map(media =>(
+                          <div key={media._id} className="h-24 w-24 border">
+                            <Image 
+                            
+                            src={media.url}
+                            height={100}
+                            width={100}
+                            alt=""
+                            className="size-full object-cover"
+                            
+                            />
+                             </div>
+                        ))}
+                        
+                         </div>
+                    
+                    }
+
+
                     <div onClick={()=>setOpen(true)} className="bg-gray-50 dark:bg-card w-[280px] mx-auto p-5 cursor-pointer">
                       <span className="font-semibold" >Select Media</span>
                       

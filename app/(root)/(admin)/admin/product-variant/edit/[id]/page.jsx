@@ -1,7 +1,7 @@
 "use client";
 import BreadCrumb from "@/components/Application/Admin/BreadCrumb";
 import { ADMIN_DASHBOARD, ADMIN_PRODUCT_SHOW } from "@/routes/AdminPanelRoute";
-import React, { useEffect, useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import {
   Form,
@@ -27,12 +27,15 @@ import Image from "next/image";
 const breadCrumbData = [
   { href: ADMIN_DASHBOARD, label: "Home" },
   { href: ADMIN_PRODUCT_SHOW, label: "Products" },
-  { href: "", label: "Add Product" },
+  { href: "", label: "Edit Product" },
 ];
 
-const AddProduct = () => {
+const EditProduct = ({ params }) => {
+  const { id } = use(params);
+
   const [loading, setLoading] = useState(false);
-  const { data: getCategory } = useFetch("/api/category?deleteType=SD&&size=10000");
+  const { data: getCategory } = useFetch("/api/category?deleteType=SD");
+  const { data: getProduct, loading: getProductLoading } = useFetch(`/api/product/get/${id}`);
 
   // media modal states
   const [open, setOpen] = useState(false);
@@ -48,6 +51,7 @@ const AddProduct = () => {
   }, [getCategory]);
 
   const formSchema = StrongAuthSchema.pick({
+    _id:true,
     name: true,
     slug: true,
     category: true,
@@ -60,6 +64,7 @@ const AddProduct = () => {
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      _id:id,
       name: "",
       slug: "",
       category: "",
@@ -71,23 +76,41 @@ const AddProduct = () => {
   });
 
   useEffect(() => {
+    if (getProduct && getProduct.success) {
+      const product = getProduct.data;
+      form.reset({
+        _id:  product?._id,
+        name: product?.name,
+        slug: product?.slug,
+        category: product?.category,
+        mrp: product?.mrp,
+        sellingPrice: product?.sellingPrice,
+        discountPercentage: product?.discountPercentage,
+        description: product?.description,
+      });
+      if(product.media){
+        const media = product.media.map((media) =>({_id: media._id, url: media.secure_url}))
+        setSelectedMedia(media)
+      }
+    }
+  }, [getProduct]);
+
+  useEffect(() => {
     const name = form.getValues("name");
     if (name) {
       form.setValue("slug", slugify(name).toLowerCase());
     }
   }, [form.watch("name")]);
 
-    // discount percentage calculation 
-  useEffect(()=>{
-    const mrp = form.getValues('mrp') || 0
-    const sellingPrice = form.getValues('sellingPrice') || 0
-    if(mrp>0 && sellingPrice>0){
-      const discountPercentage = ((mrp - sellingPrice)/mrp) * 100
-      form.setValue('discountPercentage', Math.round(discountPercentage))
-
+  // discount percentage calculation
+  useEffect(() => {
+    const mrp = form.getValues("mrp") || 0;
+    const sellingPrice = form.getValues("sellingPrice") || 0;
+    if (mrp > 0 && sellingPrice > 0) {
+      const discountPercentage = ((mrp - sellingPrice) / mrp) * 100;
+      form.setValue("discountPercentage", Math.round(discountPercentage));
     }
-  }, [form.watch('mrp'), form.watch('sellingPrice')])
-
+  }, [form.watch("mrp"), form.watch("sellingPrice")]);
 
   const editor = (event, editor) => {
     const data = editor.getData();
@@ -97,23 +120,21 @@ const AddProduct = () => {
   const onSubmit = async (values) => {
     setLoading(true);
     try {
-      if(selectedMedia.length<=0){
-        return showToast ('error', 'Please Select Media.')
+      if (selectedMedia.length <= 0) {
+        return showToast("error", "Please Select Media.");
       }
 
+      const mediaIds = selectedMedia.map((media) => media._id);
+      values.media = mediaIds;
 
-      const mediaIds = selectedMedia.map(media => media._id)
-      values.media = mediaIds
-
-      const { data: response } = await axios.post(
-        "/api/product/create",
+      const { data: response } = await axios.put(
+        "/api/product/update",
         values
       );
       if (!response.success) {
         throw new Error(response.message);
       }
 
-      form.reset();
       showToast("success", response.message);
     } catch (error) {
       showToast("error", error.message);
@@ -127,7 +148,7 @@ const AddProduct = () => {
       <BreadCrumb breadCrumbData={breadCrumbData} />
       <Card className="py-0 rounded shadow-sm">
         <CardHeader className="pt-3 px-3 border-b [.border-b:pb-2] ">
-          <h4 className="font-semibold text-xl">Add Product</h4>
+          <h4 className="font-semibold text-xl">Edit Product</h4>
         </CardHeader>
         <CardContent className="pb-5">
           <Form {...form}>
@@ -253,7 +274,7 @@ const AddProduct = () => {
                           <Input
                             type="number"
                             placeholder="Enter Discount Percentage"
-                            {...field} 
+                            {...field}
                             readOnly
                           />
                         </FormControl>
@@ -266,7 +287,10 @@ const AddProduct = () => {
                   <FormLabel className="mb-2">
                     Description <span className="text-red-600 ">*</span>{" "}
                   </FormLabel>
-                  <Editor onChange={editor} />
+
+                  {!getProductLoading && 
+                  <Editor onChange={editor} initialData={form.getValues('description')} />
+                  }
                   <FormMessage></FormMessage>
                 </div>
               </div>
@@ -308,7 +332,7 @@ const AddProduct = () => {
                 <ButtonLoading
                   loading={loading}
                   type="submit"
-                  text="Add Product"
+                  text="Save Changes"
                   className="cursor-pointer mt-4"
                 />
               </div>
@@ -320,4 +344,4 @@ const AddProduct = () => {
   );
 };
 
-export default AddProduct;
+export default EditProduct;

@@ -1,6 +1,6 @@
 "use client";
 import BreadCrumb from "@/components/Application/Admin/BreadCrumb";
-import { ADMIN_DASHBOARD, ADMIN_PRODUCT_SHOW } from "@/routes/AdminPanelRoute";
+import { ADMIN_DASHBOARD, ADMIN_PRODUCT_VARIANT_SHOW } from "@/routes/AdminPanelRoute";
 import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import {
@@ -24,15 +24,17 @@ import Select from "@/components/Application/Select";
 import Editor from "@/components/Application/Admin/Editor";
 import MediaModal from "@/components/Application/Admin/MediaModal";
 import Image from "next/image";
+
+
 const breadCrumbData = [
   { href: ADMIN_DASHBOARD, label: "Home" },
-  { href: ADMIN_PRODUCT_SHOW, label: "Products" },
-  { href: "", label: "Add Product" },
+  { href: ADMIN_PRODUCT_VARIANT_SHOW, label: "Product Variant" },
+  { href: "", label: "Add Product Variant" },
 ];
 
 const AddProduct = () => {
   const [loading, setLoading] = useState(false);
-  const { data: getCategory } = useFetch("/api/category?deleteType=SD&&size=10000");
+  const { data: getProduct } = useFetch("/api/product?deleteType=SD&&size=10000");
 
   // media modal states
   const [open, setOpen] = useState(false);

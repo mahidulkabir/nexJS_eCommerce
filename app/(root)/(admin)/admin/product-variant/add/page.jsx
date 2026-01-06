@@ -1,6 +1,9 @@
 "use client";
 import BreadCrumb from "@/components/Application/Admin/BreadCrumb";
-import { ADMIN_DASHBOARD, ADMIN_PRODUCT_VARIANT_SHOW } from "@/routes/AdminPanelRoute";
+import {
+  ADMIN_DASHBOARD,
+  ADMIN_PRODUCT_VARIANT_SHOW,
+} from "@/routes/AdminPanelRoute";
 import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import {
@@ -24,7 +27,7 @@ import Select from "@/components/Application/Select";
 import Editor from "@/components/Application/Admin/Editor";
 import MediaModal from "@/components/Application/Admin/MediaModal";
 import Image from "next/image";
-
+import { sizes } from "@/lib/utils";
 
 const breadCrumbData = [
   { href: ADMIN_DASHBOARD, label: "Home" },
@@ -34,81 +37,72 @@ const breadCrumbData = [
 
 const AddProduct = () => {
   const [loading, setLoading] = useState(false);
-  const { data: getProduct } = useFetch("/api/product?deleteType=SD&&size=10000");
+
+  const { data: getProduct } = useFetch(
+    "/api/product?deleteType=SD&&size=10000"
+  );
 
   // media modal states
   const [open, setOpen] = useState(false);
   const [selectedMedia, setSelectedMedia] = useState([]);
 
-  const [categoryOption, setCategoryOption] = useState([]);
+  const [productOption, setProductOption] = useState([]);
   useEffect(() => {
-    if (getCategory && getCategory.success) {
-      const data = getCategory.data;
-      const options = data.map((cat) => ({ label: cat.name, value: cat._id }));
-      setCategoryOption(options);
+    if (getProduct && getProduct.success) {
+      const data = getProduct.data;
+      const options = data.map((product) => ({
+        label: product.name,
+        value: product._id,
+      }));
+      setProductOption(options);
     }
-  }, [getCategory]);
+  }, [getProduct]);
 
   const formSchema = StrongAuthSchema.pick({
-    name: true,
-    slug: true,
-    category: true,
+    product: true,
+    sku: true,
+    color: true,
+    size: true,
     mrp: true,
     sellingPrice: true,
     discountPercentage: true,
-    description: true,
   });
 
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
-      slug: "",
-      category: "",
+      product: "",
+      sku: "",
+      color: "",
+      size: "",
       mrp: "",
       sellingPrice: "",
       discountPercentage: "",
-      description: "",
     },
   });
 
+  // discount percentage calculation
   useEffect(() => {
-    const name = form.getValues("name");
-    if (name) {
-      form.setValue("slug", slugify(name).toLowerCase());
+    const mrp = form.getValues("mrp") || 0;
+    const sellingPrice = form.getValues("sellingPrice") || 0;
+    if (mrp > 0 && sellingPrice > 0) {
+      const discountPercentage = ((mrp - sellingPrice) / mrp) * 100;
+      form.setValue("discountPercentage", Math.round(discountPercentage));
     }
-  }, [form.watch("name")]);
-
-    // discount percentage calculation 
-  useEffect(()=>{
-    const mrp = form.getValues('mrp') || 0
-    const sellingPrice = form.getValues('sellingPrice') || 0
-    if(mrp>0 && sellingPrice>0){
-      const discountPercentage = ((mrp - sellingPrice)/mrp) * 100
-      form.setValue('discountPercentage', Math.round(discountPercentage))
-
-    }
-  }, [form.watch('mrp'), form.watch('sellingPrice')])
-
-
-  const editor = (event, editor) => {
-    const data = editor.getData();
-    form.setValue("description", data);
-  };
+  }, [form.watch("mrp"), form.watch("sellingPrice")]);
 
   const onSubmit = async (values) => {
     setLoading(true);
     try {
-      if(selectedMedia.length<=0){
-        return showToast ('error', 'Please Select Media.')
+      if (selectedMedia.length <= 0) {
+        return showToast("error", "Please Select Media.");
       }
 
-
-      const mediaIds = selectedMedia.map(media => media._id)
-      values.media = mediaIds
+      const mediaIds = selectedMedia.map((media) => media._id);
+      values.media = mediaIds;
 
       const { data: response } = await axios.post(
-        "/api/product/create",
+        "/api/product-variant/create",
         values
       );
       if (!response.success) {
@@ -129,7 +123,7 @@ const AddProduct = () => {
       <BreadCrumb breadCrumbData={breadCrumbData} />
       <Card className="py-0 rounded shadow-sm">
         <CardHeader className="pt-3 px-3 border-b [.border-b:pb-2] ">
-          <h4 className="font-semibold text-xl">Add Product</h4>
+          <h4 className="font-semibold text-xl">Add Product Variant</h4>
         </CardHeader>
         <CardContent className="pb-5">
           <Form {...form}>
@@ -138,57 +132,15 @@ const AddProduct = () => {
                 <div className="my-2">
                   <FormField
                     control={form.control}
-                    name="name"
+                    name="product"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>
-                          Name <span className="text-red-600">*</span>
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            type="text"
-                            placeholder="Enter Category Name"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <div className="my-2">
-                  <FormField
-                    control={form.control}
-                    name="slug"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>
-                          Slug<span className="text-red-600">*</span>
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            type="text"
-                            placeholder="Enter Slug"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <div className="my-2">
-                  <FormField
-                    control={form.control}
-                    name="category"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>
-                          Category<span className="text-red-600">*</span>
+                          Product<span className="text-red-600">*</span>
                         </FormLabel>
                         <FormControl>
                           <Select
-                            options={categoryOption}
+                            options={productOption}
                             selected={field.value}
                             setSelected={field.onChange}
                             isMulti={false}
@@ -199,6 +151,71 @@ const AddProduct = () => {
                     )}
                   />
                 </div>
+                <div className="my-2">
+                  <FormField
+                    control={form.control}
+                    name="sku"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>
+                          SKU <span className="text-red-600">*</span>
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            type="text"
+                            placeholder="Enter SKU"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="my-2">
+                  <FormField
+                    control={form.control}
+                    name="color"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>
+                          Color<span className="text-red-600">*</span>
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            type="text"
+                            placeholder="Enter Color"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="my-2">
+                  <FormField
+                    control={form.control}
+                    name="size"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>
+                          Size<span className="text-red-600">*</span>
+                        </FormLabel>
+                        <FormControl>
+                          <Select
+                            options={sizes}
+                            selected={field.value}
+                            setSelected={field.onChange}
+                            isMulti={false}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
                 <div className="my-2">
                   <FormField
                     control={form.control}
@@ -255,7 +272,7 @@ const AddProduct = () => {
                           <Input
                             type="number"
                             placeholder="Enter Discount Percentage"
-                            {...field} 
+                            {...field}
                             readOnly
                           />
                         </FormControl>
@@ -263,13 +280,6 @@ const AddProduct = () => {
                       </FormItem>
                     )}
                   />
-                </div>
-                <div className="mb-5 md:col-span-2">
-                  <FormLabel className="mb-2">
-                    Description <span className="text-red-600 ">*</span>{" "}
-                  </FormLabel>
-                  <Editor onChange={editor} />
-                  <FormMessage></FormMessage>
                 </div>
               </div>
 
@@ -310,7 +320,7 @@ const AddProduct = () => {
                 <ButtonLoading
                   loading={loading}
                   type="submit"
-                  text="Add Product"
+                  text="Add Product Variant"
                   className="cursor-pointer mt-4"
                 />
               </div>

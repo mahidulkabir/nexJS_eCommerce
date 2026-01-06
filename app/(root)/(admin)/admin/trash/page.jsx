@@ -6,7 +6,7 @@ import React, { useCallback, useMemo } from 'react'
 
 import DatatableWrapper from '@/components/Application/Admin/DatatableWrapper'
 import { columnConfig } from '@/lib/helperFunction'
-import { DT_CATEGORY_COLUMN, DT_COUPON_COLUMN, DT_PRODUCT_COLUMN, DT_PRODUCT_VARIANT_COLUMN } from '@/lib/column'
+import { DT_CATEGORY_COLUMN, DT_COUPON_COLUMN, DT_CUSTOMERS_COLUMN, DT_PRODUCT_COLUMN, DT_PRODUCT_VARIANT_COLUMN } from '@/lib/column'
 import DeleteAction from '@/components/Application/Admin/DeleteAction'
 import { useSearchParams } from 'next/navigation'
 
@@ -44,6 +44,13 @@ const TRASH_CONFIG = {
     fetchUrl: '/api/coupon',
     exportUrl: '/api/coupon/export',
     deleteUrl: '/api/coupon/delete',
+  },
+  customers:{
+    title: 'Customers Trash',
+    columns: DT_CUSTOMERS_COLUMN,
+    fetchUrl: '/api/customers',
+    exportUrl: '/api/customers/export',
+    deleteUrl: '/api/customers/delete',
   },
 }
 

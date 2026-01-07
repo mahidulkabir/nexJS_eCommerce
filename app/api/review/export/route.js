@@ -1,7 +1,7 @@
 import { connectDB } from "@/lib/databaseConnection";
 import { catchError, response } from "@/lib/helperFunction";
 import { isAuthenticated } from "@/lib/authentication"
-import UserModel from "@/models/User.model";
+import ReviewModel from "@/models/Review.Model";
 export async function GET(request ) {
     try {
         const auth = await isAuthenticated('admin')
@@ -15,12 +15,12 @@ export async function GET(request ) {
             deletedAt: null
         }
 
-       const getCustomers = await UserModel.find(filter).sort({createdAt: -1}).lean()
+       const getReview = await ReviewModel.find(filter).sort({createdAt: -1}).lean()
 
-       if(!getCustomers){
+       if(!getReview){
           return response(false, 404, 'Collection Empty.')
        }
-       return response (true,200, 'Data Found', getCustomers)
+       return response (true,200, 'Data Found', getReview)
     } catch (error) {
         return catchError(error)
     }

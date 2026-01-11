@@ -6,7 +6,7 @@ import {
 } from "@/routes/WebsiteRoute";
 import Image from "next/image";
 import Link from "next/link";
-import React from "react";
+import React, { useState } from "react";
 import logoBlack from "@/public/assets/images/logo-black.png";
 import { IoIosSearch, IoMdClose } from "react-icons/io";
 import { VscAccount } from "react-icons/vsc";
@@ -19,6 +19,7 @@ import { FaBars } from "react-icons/fa";
 
 const Header = () => {
   const auth = useSelector((store) => store.authStore.auth);
+  const [isMobileMenu, setIsMobileMenu] = useState(false)
   return (
     <div className="bg-white border-b lg:px-32 px-3 ">
       <div className="flex justify-between items-center lg:py-5 py-3">
@@ -33,7 +34,7 @@ const Header = () => {
         </Link>
         <div className="flex justify-between gap-20">
           <nav
-            className={`lg:relative lg:w-auto lg:top-0 lg:left-0 lg:p-0 bg-white fixed z-50 top-0 w-full h-screen left-0`}
+            className={`lg:relative lg:w-auto lg:top-0 lg:left-0 lg:h-auto lg:p-0 bg-white fixed z-50 top-0 w-full h-screen transition-all ${isMobileMenu ? 'left-0' : '-left-full' }`}
           >
             {/* div for mobile responsive */}
             <div className="lg:hidden flex justify-between items-center bg-gray-50 py-3 border-b px-3">
@@ -44,12 +45,12 @@ const Header = () => {
                 alt="logo black"
                 className="lg:w-32 w-24"
               />
-               <button type="button" >
+               <button type="button" onClick={()=>setIsMobileMenu(false)} >
               <IoMdClose size={25} className="text-gray-500 hover:text-primary" />
             </button>
             </div>
 
-            
+
             <ul className="lg:flex justify-between items-center gap-10 px-3">
               <li className="text-gray-600 hover:text-primary hover:font-semibold">
                 <Link href={WEBSITE_HOME} className="block py-2">
@@ -109,7 +110,7 @@ const Header = () => {
               </Link>
             )}
 
-            <button type="button" className="lg:hidden block">
+            <button type="button" className="lg:hidden block" onClick={()=>setIsMobileMenu(true)}>
               <FaBars size={25} className="text-gray-500 hover:text-primary" />
             </button>
           </div>
